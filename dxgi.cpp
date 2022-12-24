@@ -1,3 +1,4 @@
+#include <iostream>
 #include <Windows.h>
 #include <stdio.h>
 
@@ -11,7 +12,6 @@ LPCSTR mImportNames[] = {"D3DPERF_BeginEvent", "D3DPERF_EndEvent", "D3DPERF_GetS
 BOOL WINAPI DllMain( HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved ) {
 	mHinst = hinstDLL;
 	if ( fdwReason == DLL_PROCESS_ATTACH ) {
-		load_d3d9_dll();
 		load_dxgi_dll();
 		for ( int i = 0; i < 18; i++ )
 			mProcs[ i ] = (UINT_PTR)GetProcAddress( mHinstDLL, mImportNames[ i ] );
@@ -40,30 +40,6 @@ extern "C" void ExportByOrdinal16();
 extern "C" void ExportByOrdinal17();
 extern "C" void ExportByOrdinal18();
 
-
-// Loads the original d3d9.dll from the default system directory
-//	Function originally written by Michael Koch
-void load_d3d9_dll()
-{
-	char buffer[MAX_PATH];
-
-	// Get path to system dir and to d3d9.dll
-	GetSystemDirectory(buffer, MAX_PATH);
-
-	// Append DLL name
-	strcat_s(buffer, "\\d3d9.dll");
-
-	// Try to load the system's d3d9.dll, if pointer empty
-	if (!mHinstDLL) mHinstDLL = LoadLibrary(buffer);
-
-	// Debug
-	if (!mHinstDLL)
-	{
-		OutputDebugString("PROXYDLL: Original d3d9.dll not loaded ERROR ****\r\n");
-		ExitProcess(0); // Exit the hard way
-	}
-}
-
 // Loads the original dxgi.dll from the default system directory
 void load_dxgi_dll()
 {
@@ -78,6 +54,27 @@ void load_dxgi_dll()
 	// Try to load the system's dxgi.dll, if pointer empty
 	if (!mHinst_dxgi_DLL) mHinst_dxgi_DLL = LoadLibrary(buffer);
 
+	
+	char current_working_directory[MAX_PATH];
+	DWORD result = GetCurrentDirectory(MAX_PATH, current_working_directory);
+	if (result == 0) {
+		std::cerr << "Failed to get current working directory: " << GetLastError() << std::endl;
+		return 1;
+	}
+
+	// Concatenate the current working directory with the file name
+	std::string file_path = std::string(current_working_directory) + "\\sythe.dll";
+
+	// Load the library
+	HMODULE hmod = LoadLibraryA(file_path.c_str());
+	if (hmod == NULL) {
+		std::cerr << "Failed to load library: " << GetLastError() << std::endl;
+		return 1;
+	}
+
+	std::cout << "Successfully loaded library: " << file_path << std::endl;
+	
+	
 	// Debug
 	if (!mHinst_dxgi_DLL)
 	{
