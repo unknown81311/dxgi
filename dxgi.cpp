@@ -5,7 +5,6 @@
 HINSTANCE mHinst = 0, mHinstDLL = 0, mHinst_dxgi_DLL = 0;
 extern "C" UINT_PTR mProcs[18] = {0};
 
-void load_d3d9_dll();
 void load_dxgi_dll();
 
 LPCSTR mImportNames[] = {"D3DPERF_BeginEvent", "D3DPERF_EndEvent", "D3DPERF_GetStatus", "D3DPERF_QueryRepeatFrame", "D3DPERF_SetMarker", "D3DPERF_SetOptions", "D3DPERF_SetRegion", "DebugSetLevel", "DebugSetMute", "Direct3D9EnableMaximizedWindowedModeShim", "Direct3DCreate9", "Direct3DCreate9Ex", "Direct3DShaderValidatorCreate9", "PSGPError", "PSGPSampleTexture", (LPCSTR)16, (LPCSTR)17, (LPCSTR)18};
